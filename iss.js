@@ -1,7 +1,7 @@
 const request = require('request');
 
 
-const fetchMyIP = function (callback) {
+const fetchMyIP = function(callback) {
   const url = 'https://api.ipify.org?format=json';
   request(url, (error, response, body) => {
     if (error) {
@@ -16,10 +16,10 @@ const fetchMyIP = function (callback) {
     }
   });
 };
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-
-const fetchCoordsByIP = function (ip, callback) {
+const fetchCoordsByIP = function(ip, callback) {
   const geoURL = `https://ipvigilante.com/${ip}`;
   request(geoURL, (error, response, body) => {
     if (error) {
@@ -30,19 +30,20 @@ const fetchCoordsByIP = function (ip, callback) {
       callback(Error(`Status Code ${response.statusCode} when fetching coords: ${body}`), null);
     } else {
       const objParsed = JSON.parse(body);
-      const lat = objParsed.data.latitude;
-      const long = objParsed.data.longitude;
+      const latitude = objParsed.data.latitude;
+      const longitude = objParsed.data.longitude;
       const coords = {
-        lat,
-        long
+        latitude,
+        longitude
       };
       callback(null, coords);
     }
   });
 };
-//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-const fetchISSFlyOverTimes = function (coords, callback) {
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+const fetchISSFlyOverTimes = function(coords, callback) {
   const url = `http://api.open-notify.org/iss-pass.json?lat=${coords.latitude}&lon=${coords.longitude}`;
 
   request(url, (error, response, body) => {
@@ -84,5 +85,15 @@ const nextISSTimesForMyLocation = function(callback) {
 };
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+const printPassTimes = function(passTimes) {
+  for (const pass of passTimes) {
+    const datetime = new Date(0);
+    datetime.setUTCSeconds(pass.risetime);
+    const duration = pass.duration;
+    console.log(`Next pass at ${datetime} for ${duration} seconds!`);
+  }
+};
 
-module.exports = { fetchCoordsByIP, fetchMyIP, fetchISSFlyOverTimes, nextISSTimesForMyLocation };
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+module.exports = { fetchCoordsByIP, fetchMyIP, fetchISSFlyOverTimes, nextISSTimesForMyLocation, printPassTimes };
